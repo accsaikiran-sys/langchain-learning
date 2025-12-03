@@ -3,11 +3,12 @@ Created: 20251202
 https://course.kactii.com/course/hustlecamp-s3
 https://chatgpt.com/c/692fb5e0-fcd4-8333-b435-72b14fea58ce
 """
+
 import os
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains import ConversationChain
-from langchain.memory import ConversationBufferMemory
+from langchain.memory import ConversationBufferWindowMemory
 
 load_dotenv()
 
@@ -18,7 +19,7 @@ llm=ChatGoogleGenerativeAI(
     google_api_key=api_key
 )
 
-memory=ConversationBufferMemory()
+memory=ConversationBufferWindowMemory(k=1)
 
 chain=ConversationChain(llm=llm,memory=memory)
 
