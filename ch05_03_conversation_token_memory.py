@@ -22,7 +22,8 @@ llm=ChatGoogleGenerativeAI(
 
 memory=ConversationTokenBufferMemory(
     llm=llm,
-    max_token_limit=10
+    max_token_limit=100,
+    return_message=True
 )
 
 conversation=ConversationChain(
