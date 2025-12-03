@@ -36,6 +36,8 @@ def main():
                 continue
             response=chain.run(input=user_input)
             print("AI:",response)
+            print("***********************************************\n**********")
+
     except KeyboardInterrupt:
         print("Exit Successful")
 
