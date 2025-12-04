@@ -1,3 +1,8 @@
+"""
+Created:20251203
+https://chatgpt.com/c/692fd62c-ded4-8325-af62-2ea1357aa16c
+"""
+
 import os
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
