@@ -1,2 +1,11 @@
 .env
 zzemp.py
+
+# PDF files
+*.pdf
+
+# Temporary/example files
+ch03_ex_1.py
+ch05_06_conversation_summary_memory.py
+ch05_07_vector_stoage_search_memory.py
+ch05_10_add_chat_message_history.py

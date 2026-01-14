@@ -1,40 +1,49 @@
 import os
 from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFLoader
-from langchain.text_splitter import CharacterTextSplitter
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import FAISS
+from langchain_classic.chains import RetrievalQA
+from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 
 load_dotenv()
 
-api_key=os.getenv("GEMINI_API_KEY")
+PDF_PATH = "SaskGov-cv.pdf"
 
-llm=ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
-    google_api_key=api_key
-)
+def build_retriever():
+    loader = PyPDFLoader(PDF_PATH)
+    pages = loader.load()
 
-pdf="sample.pdf"
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=500,
+        chunk_overlap=50
+    )
+    chunks = splitter.split_documents(pages)
 
-loader=PyPDFLoader(pdf)
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
+    vectorstore = FAISS.from_documents(chunks, embeddings)
+    return vectorstore.as_retriever(search_kwargs={"k": 3})
 
-document=loader.load()
+def main():
+    # Make sure you set your Google API key
+    if "GEMINI_API_KEY" not in os.environ:
+        raise RuntimeError("Please set GEMINI_API_KEY environment variable.")
 
-print("Pages Loaded: ",len(document))
+    retriever = build_retriever()
+    llm = ChatGoogleGenerativeAI(model="gemini-flash-lite-latest", temperature=0.0)
 
-splitter=CharacterTextSplitter(
-    separator="\n",
-    chunk_size=1000,
-    chunk_overlap=200
-)
+    qa = RetrievalQA.from_chain_type(
+        llm=llm,
+        chain_type="stuff",
+        retriever=retriever
+    )
 
-chunks = splitter.split_documents(document)
+    print("PDF ready! Ask questions. Type 'exit' to quit.")
+    while True:
+        q = input("\nQuestion: ")
+        if q.lower() in ["exit", "quit"]:
+            break
+        print("\nAnswer:", qa.run(q))
 
-print("Chunks:",len(chunks))
-
-query="Summarize this pdf in simple words"
-
-full_text="\n\n".join(chunk.page_content for chunk in chunks)
-
-response=llm.invoke(full_text + query)
-
-print(response.content)
+if __name__ == "__main__":
+    main()

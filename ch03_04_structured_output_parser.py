@@ -9,7 +9,7 @@ from typing import List
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 
-llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=api_key)
+llm = ChatGoogleGenerativeAI(model="gemini-flash-latest", google_api_key=api_key)
 
 # Define the structure we want
 class PersonInfo(BaseModel):

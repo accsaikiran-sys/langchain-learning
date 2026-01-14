@@ -2,14 +2,14 @@ import os
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.document_loaders import CSVLoader
-from langchain.text_splitter import CharacterTextSplitter
+from langchain_classic.text_splitter import CharacterTextSplitter
 
 load_dotenv()
 
 api_key=os.getenv("GEMINI_API_KEY")
 
 llm=ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash",
+    model="gemini-flash-latest",
     google_api_key=api_key
 )
 

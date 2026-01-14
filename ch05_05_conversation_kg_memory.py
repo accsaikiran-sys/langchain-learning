@@ -8,15 +8,15 @@ https://chatgpt.com/c/692fd62c-ded4-8325-af62-2ea1357aa16c
 import os
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.chains import ConversationChain
-from langchain.memory import ConversationKGMemory
+from langchain_classic.chains import ConversationChain
+from langchain_classic.memory import ConversationKGMemory
 
 load_dotenv()
 
 api_key = os.getenv("GEMINI_API_KEY")
 
 llm=ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
+    model="gemini-2.0-flash",
     google_api_key=api_key
 )
 

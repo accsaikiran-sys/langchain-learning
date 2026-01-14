@@ -7,8 +7,8 @@ https://chatgpt.com/c/692fb5e0-fcd4-8333-b435-72b14fea58ce
 import os
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.chains import ConversationChain
-from langchain.memory import ConversationBufferWindowMemory
+from langchain_classic.chains import ConversationChain
+from langchain_classic.memory import ConversationBufferWindowMemory
 
 load_dotenv()
 

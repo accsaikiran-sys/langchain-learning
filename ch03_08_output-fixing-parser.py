@@ -1,46 +1,54 @@
-from langchain_core.prompts import PromptTemplate
-from dotenv import load_dotenv
 import os
-from langchain_core.output_parsers import PydanticOutputParser
-from langchain.output_parsers import OutputFixingParser
+from dotenv import load_dotenv
+from pydantic import BaseModel
 from langchain_google_genai import ChatGoogleGenerativeAI
-from pydantic import BaseModel, Field
-from typing import List
+from langchain_classic.output_parsers import OutputFixingParser, PydanticOutputParser
 
+# Load GEMINI_API_KEY
 load_dotenv()
-
 api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise ValueError("Set GEMINI_API_KEY in your environment")
 
+# Define structured output
 class Person(BaseModel):
-    name: str = Field(description="Name of the person")
-    age: int = Field(description="Age of the person")
+    name: str
+    age: int
 
-parser = PydanticOutputParser(pydantic_object=Person)
-
-format_instructions = parser.get_format_instructions()
-
-prompt = PromptTemplate(
-    template="Extract the following details:\nName: John Doe\nAge: thirty three\n{formatted_instructions}",
-    partial_variables={"formatted_instructions": format_instructions}
-)
-
-fixing_parser = OutputFixingParser.from_llm(
-    parser=parser,
-    llm=ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
-        api_key=api_key
-    )
-)
-
+# Initialize LLM
 llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash",
+    model="gemini-2.5-flash",
+    temperature=0,
     api_key=api_key
 )
 
-formatted_prompt = prompt.format()
+# Example text that will cause type errors
+text = "Charlie is forty-two years old."
 
-response = llm.invoke(formatted_prompt)
+# ---------------------------
+# Without OutputFixingParser
+# ----------------------------
+raw_output = llm.invoke([
+    ("system", "Extract structured data in JSON format."),
+    ("user", f"Extract name and age from: {text}")
+])
 
-fixed_response = fixing_parser.parse(response.content)
+print("=== Without OutputFixingParser ===")
+print(raw_output.content)
 
-print(fixed_response)
+# If you try to parse this raw output directly using Pydantic:
+try:
+    Person.parse_raw(raw_output.content)
+except Exception as e:
+    print("Error while parsing:", e)
+
+
+# -----------------------
+# With OutputFixingParser
+# -----------------------
+pydantic_parser = PydanticOutputParser(pydantic_object=Person)
+fixing_parser = OutputFixingParser.from_llm(parser=pydantic_parser, llm=llm)
+
+parsed_output = fixing_parser.parse(raw_output.content)
+print("\n=== With OutputFixingParser ===")
+print(parsed_output)
